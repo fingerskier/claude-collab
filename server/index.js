@@ -11,7 +11,6 @@ import livekitRoutes from './routes/livekit.js';
 import settingsRoutes from './routes/settings.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const isDev = process.env.NODE_ENV !== 'production';
 const app = express();
 const server = createServer(app);
 
@@ -46,6 +45,7 @@ async function findAvailablePort(preferred, maxRetries) {
 }
 
 async function start() {
+  const isDev = process.env.NODE_ENV !== 'production';
   if (isDev) {
     // Use Vite dev server as middleware
     const { createServer: createViteServer } = await import('vite');
