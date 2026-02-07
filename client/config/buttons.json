@@ -1,0 +1,10 @@
+[
+  { "id": "explain", "label": "Explain", "promptTemplate": "Explain the current codebase structure and key files", "defaultVisible": true },
+  { "id": "fix", "label": "Fix Bug", "promptTemplate": "Find and fix bugs in this project", "defaultVisible": true },
+  { "id": "refactor", "label": "Refactor", "promptTemplate": "Suggest refactoring improvements for this codebase", "defaultVisible": true },
+  { "id": "test", "label": "Write Tests", "promptTemplate": "Write tests for this project", "defaultVisible": true },
+  { "id": "review", "label": "Code Review", "promptTemplate": "Review the recent changes and provide feedback", "defaultVisible": true },
+  { "id": "docs", "label": "Add Docs", "promptTemplate": "Add documentation comments to the code", "defaultVisible": false },
+  { "id": "optimize", "label": "Optimize", "promptTemplate": "Suggest performance optimizations", "defaultVisible": false },
+  { "id": "custom", "label": "Custom...", "promptTemplate": "{input}", "defaultVisible": true, "requiresInput": true }
+]

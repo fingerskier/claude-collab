@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Collab</title>
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="claude-collab" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Toolbar -->
+    <header id="toolbar">
+      <div class="toolbar-left">
+        <img src="/favicon-96x96.png" alt="" class="logo-icon" />
+        <h1 class="logo">Claude Collab</h1>
+        <span id="connection-status" class="status-dot disconnected" title="Disconnected"></span>
+      </div>
+      <div class="toolbar-center">
+        <input id="room-input" type="text" placeholder="Room code..." />
+        <button id="join-room-btn" class="btn btn-sm">Join Room</button>
+      </div>
+      <div class="toolbar-right">
+        <button id="settings-btn" class="btn btn-icon" title="Settings">&#9881;</button>
+      </div>
+    </header>
+
+    <!-- Main panels -->
+    <aside id="file-tree-panel" class="panel">
+      <div class="panel-header">
+        <span>Files</span>
+        <button id="refresh-files-btn" class="btn btn-icon btn-xs" title="Refresh">&#8635;</button>
+      </div>
+      <div id="file-tree" class="panel-body"></div>
+    </aside>
+
+    <main id="chat-panel" class="panel">
+      <div class="panel-header">
+        <span>Chat</span>
+        <button id="interrupt-btn" class="btn btn-sm btn-danger" style="display:none;">Stop</button>
+      </div>
+      <div id="chat-messages" class="panel-body"></div>
+      <div id="task-buttons" class="task-buttons"></div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" placeholder="Ask Claude..." rows="2"></textarea>
+        <button id="send-btn" class="btn btn-primary">Send</button>
+      </div>
+    </main>
+
+    <aside id="screen-share-panel" class="panel">
+      <div class="panel-header">
+        <span>Screen Share</span>
+        <button id="share-screen-btn" class="btn btn-sm">Share Screen</button>
+      </div>
+      <div id="screen-share-container" class="panel-body">
+        <div id="remote-video-container"></div>
+        <div id="webcam-pip"></div>
+        <div id="screen-share-placeholder" class="placeholder-text">
+          Join a room to share screens
+        </div>
+      </div>
+    </aside>
+
+    <!-- Task queue -->
+    <section id="task-queue-panel" class="panel">
+      <div class="panel-header">
+        <span>Task Queue</span>
+        <span id="task-count" class="badge">0</span>
+      </div>
+      <div id="task-queue" class="panel-body task-queue-body"></div>
+    </section>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
