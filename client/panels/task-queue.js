@@ -1,6 +1,7 @@
 import { getState, subscribe, updateInArray, appendState } from '../lib/state.js';
 import { on, send } from '../lib/ws-client.js';
 import { createTaskCard } from '../components/task-card.js';
+import { escapeHtml } from '../lib/escape-html.js';
 
 const queueEl = () => document.getElementById('task-queue');
 const countEl = () => document.getElementById('task-count');
@@ -25,21 +26,46 @@ function renderAll() {
   const el = queueEl();
   if (!el) return;
 
-  el.innerHTML = '';
-
-  // Render task cards
   const tasks = getState('tasks') || [];
-  for (const task of tasks) {
-    el.appendChild(createTaskCard(task, {
-      onApprove: (id) => send({ type: 'task:approve', taskId: id }),
-      onReject: (id) => send({ type: 'task:reject', taskId: id }),
-    }));
+  const roomMessages = getState('roomMessages') || [];
+
+  // Build set of desired IDs
+  const desiredTaskIds = new Set(tasks.map(t => t.id));
+  const desiredMsgIds = new Set(roomMessages.map((_, i) => `room-${i}`));
+
+  // Remove stale task cards
+  for (const child of [...el.children]) {
+    const id = child.dataset.id;
+    if (child.classList.contains('room-msg-card')) {
+      if (!desiredMsgIds.has(id)) child.remove();
+    } else {
+      if (!desiredTaskIds.has(id)) child.remove();
+    }
   }
 
-  // Render room message cards
-  const roomMessages = getState('roomMessages') || [];
-  for (const msg of roomMessages) {
-    el.appendChild(createRoomMessageCard(msg));
+  // Upsert task cards
+  for (const task of tasks) {
+    const existing = el.querySelector(`.task-card[data-id="${task.id}"]:not(.room-msg-card)`);
+    if (existing) {
+      const replacement = createTaskCard(task, {
+        onApprove: (id) => send({ type: 'task:approve', taskId: id }),
+        onReject: (id) => send({ type: 'task:reject', taskId: id }),
+      });
+      el.replaceChild(replacement, existing);
+    } else {
+      el.appendChild(createTaskCard(task, {
+        onApprove: (id) => send({ type: 'task:approve', taskId: id }),
+        onReject: (id) => send({ type: 'task:reject', taskId: id }),
+      }));
+    }
+  }
+
+  // Append new room message cards only
+  const existingMsgCount = el.querySelectorAll('.room-msg-card').length;
+  for (let i = existingMsgCount; i < roomMessages.length; i++) {
+    const card = createRoomMessageCard(roomMessages[i]);
+    card.dataset.id = `room-${i}`;
+    el.appendChild(card);
   }
 
   const count = countEl();
@@ -66,8 +92,3 @@ function createRoomMessageCard(msg) {
   return card;
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}

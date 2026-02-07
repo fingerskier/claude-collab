@@ -1,3 +1,5 @@
+import { escapeHtml } from '../lib/escape-html.js';
+
 export function createTaskCard(task, { onApprove, onReject }) {
   const el = document.createElement('div');
   el.className = 'task-card';
@@ -33,8 +35,3 @@ export function createTaskCard(task, { onApprove, onReject }) {
   return el;
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}

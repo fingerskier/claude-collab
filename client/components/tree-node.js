@@ -1,3 +1,5 @@
+import { escapeHtml } from '../lib/escape-html.js';
+
 export function createTreeNode(item, loadDirectory) {
   const el = document.createElement('div');
 
@@ -39,8 +41,3 @@ export function createTreeNode(item, loadDirectory) {
   return el;
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}

@@ -2,6 +2,7 @@ import { getState, appendState, setState, subscribe } from '../lib/state.js';
 import { send, on } from '../lib/ws-client.js';
 import { createMessage } from '../components/message.js';
 import { getRoom, getIdentity } from './screen-share.js';
+import { escapeHtml } from '../lib/escape-html.js';
 
 const messagesEl = () => document.getElementById('chat-messages');
 const inputEl = () => document.getElementById('chat-input');
@@ -12,7 +13,6 @@ const interruptBtn = () => document.getElementById('interrupt-btn');
 let currentAssistantEl = null;
 let currentAssistantText = '';
 let currentTextBlockEl = null;
-let currentSegmentText = '';
 
 export function initChat() {
   // Send button
@@ -120,19 +120,18 @@ function handleAgentText(msg) {
     currentAssistantEl = addMessageToUI('assistant', '');
     currentAssistantText = '';
     currentTextBlockEl = null;
-    currentSegmentText = '';
+
   }
 
   if (!currentTextBlockEl) {
     currentTextBlockEl = document.createElement('div');
     currentTextBlockEl.className = 'msg-content';
     currentAssistantEl.appendChild(currentTextBlockEl);
-    currentSegmentText = '';
+
   }
 
-  currentSegmentText += msg.text;
   currentAssistantText += msg.text;
-  currentTextBlockEl.textContent = currentSegmentText;
+  currentTextBlockEl.appendChild(document.createTextNode(msg.text));
   scrollToBottom();
 }
 
@@ -284,9 +283,15 @@ function addMessageToUI(role, content) {
   return el;
 }
 
+let scrollRafPending = false;
 function scrollToBottom() {
-  const el = messagesEl();
-  if (el) el.scrollTop = el.scrollHeight;
+  if (scrollRafPending) return;
+  scrollRafPending = true;
+  requestAnimationFrame(() => {
+    scrollRafPending = false;
+    const el = messagesEl();
+    if (el) el.scrollTop = el.scrollHeight;
+  });
 }
 
 export function injectCognateMessage(text, sender) {
@@ -302,8 +307,3 @@ export function injectCognateMessage(text, sender) {
   interruptBtn().style.display = '';
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}

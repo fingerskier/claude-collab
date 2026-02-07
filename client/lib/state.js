@@ -30,15 +30,31 @@ export function subscribe(key, fn) {
   return () => listeners.get(key).delete(fn);
 }
 
+const pendingNotifications = new Map();
+let notifyScheduled = false;
+
 function notify(key, value) {
-  const subs = listeners.get(key);
-  if (subs) subs.forEach(fn => fn(value));
+  pendingNotifications.set(key, value);
+  if (!notifyScheduled) {
+    notifyScheduled = true;
+    queueMicrotask(flushNotifications);
+  }
 }
 
-// Convenience: append to array state
+function flushNotifications() {
+  notifyScheduled = false;
+  for (const [key, value] of pendingNotifications) {
+    const subs = listeners.get(key);
+    if (subs) subs.forEach(fn => fn(value));
+  }
+  pendingNotifications.clear();
+}
+
+// Convenience: append to array state (mutates in-place to avoid O(n) copy)
 export function appendState(key, item) {
-  const arr = [...(state[key] || []), item];
-  setState(key, arr);
+  if (!state[key]) state[key] = [];
+  state[key].push(item);
+  notify(key, state[key]);
 }
 
 // Update item in array by id

@@ -5,6 +5,8 @@ import { setState } from './state.js';
 
 let ws = null;
 let reconnectTimer = null;
+let reconnectDelay = 1000;
+const MAX_RECONNECT_DELAY = 30000;
 const handlers = new Map();
 
 export function connect() {
@@ -23,6 +25,7 @@ export function connect() {
     setState('wsConnected', true);
     updateStatus('connected');
     clearTimeout(reconnectTimer);
+    reconnectDelay = 1000;
   };
 
   ws.onmessage = (event) => {
@@ -50,7 +53,8 @@ export function connect() {
 
 function scheduleReconnect() {
   clearTimeout(reconnectTimer);
-  reconnectTimer = setTimeout(() => connect(), 2000);
+  reconnectTimer = setTimeout(() => connect(), reconnectDelay);
+  reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY);
 }
 
 function updateStatus(status) {

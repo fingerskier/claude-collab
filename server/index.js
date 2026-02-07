@@ -74,14 +74,14 @@ async function start() {
     console.log(`WebSocket available on ws://localhost:${port}/ws`);
     if (isDev) {
       console.log('Vite dev server enabled (HMR active)');
-    } else {
-      import('child_process').then(({ exec }) => {
-        const cmd = process.platform === 'win32' ? `start ${url}`
-          : process.platform === 'darwin' ? `open ${url}`
-          : `xdg-open ${url}`;
-        exec(cmd);
-      });
     }
+    // Auto-open browser
+    import('child_process').then(({ exec }) => {
+      const cmd = process.platform === 'win32' ? `start ${url}`
+        : process.platform === 'darwin' ? `open ${url}`
+        : `xdg-open ${url}`;
+      exec(cmd);
+    });
   });
 }
 
