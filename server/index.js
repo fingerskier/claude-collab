@@ -1,4 +1,5 @@
 try { await import('dotenv/config'); } catch {}
+import fs from 'fs';
 import express from 'express';
 import { createServer } from 'http';
 import { createServer as createNetServer } from 'net';
@@ -58,6 +59,16 @@ async function start() {
   } else {
     // Serve built static files in production
     const distPath = path.join(__dirname, '..', 'dist');
+    const indexPath = path.join(distPath, 'index.html');
+
+    if (!fs.existsSync(indexPath)) {
+      console.error(
+        'Error: dist/index.html not found. The client has not been built.\n' +
+        'Run "npm run build" first, then retry.'
+      );
+      process.exit(1);
+    }
+
     app.use(express.static(distPath));
     app.get('*', (_req, res, next) => {
       if (_req.path.startsWith('/api') || _req.path.startsWith('/ws')) return next();
@@ -75,13 +86,6 @@ async function start() {
     if (isDev) {
       console.log('Vite dev server enabled (HMR active)');
     }
-    // Auto-open browser
-    import('child_process').then(({ exec }) => {
-      const cmd = process.platform === 'win32' ? `start ${url}`
-        : process.platform === 'darwin' ? `open ${url}`
-        : `xdg-open ${url}`;
-      exec(cmd);
-    });
   });
 }
 
