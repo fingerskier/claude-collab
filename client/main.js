@@ -1,5 +1,5 @@
 import { connect } from './lib/ws-client.js';
-import { initFileTree } from './panels/file-tree.js';
+import { initProjectContext } from './panels/project-context.js';
 import { initChat } from './panels/chat.js';
 import { initTaskQueue } from './panels/task-queue.js';
 import { initScreenShare } from './panels/screen-share.js';
@@ -10,7 +10,7 @@ import { initSettings } from './panels/settings.js';
 connect();
 
 // Initialize panels
-initFileTree();
+initProjectContext();
 initChat();
 initTaskQueue();
 initTaskButtons();

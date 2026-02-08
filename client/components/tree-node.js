@@ -9,6 +9,23 @@ export function createTreeNode(item, loadDirectory) {
 
   el.appendChild(row);
 
+  if (item.type === 'file') {
+    row.addEventListener('click', () => {
+      row.dispatchEvent(new CustomEvent('file:select', {
+        bubbles: true,
+        detail: { path: item.path, name: item.name },
+      }));
+    });
+
+    row.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      row.dispatchEvent(new CustomEvent('file:context', {
+        bubbles: true,
+        detail: { path: item.path, name: item.name },
+      }));
+    });
+  }
+
   if (item.type === 'directory') {
     let loaded = false;
     let expanded = false;

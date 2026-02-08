@@ -11,6 +11,8 @@ const state = {
   pendingPermission: null,
   settings: loadSettings(),
   wsConnected: false,
+  sessionArtifacts: [],   // { id, type, content, sender, ts } — type: cognate|bookmark|link|snippet
+  roomParticipants: [],   // { identity, joinedAt }
 };
 
 const listeners = new Map();

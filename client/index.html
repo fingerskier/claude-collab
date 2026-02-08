@@ -32,11 +32,29 @@
 
     <!-- Main panels -->
     <aside id="file-tree-panel" class="panel">
-      <div class="panel-header">
-        <span>Files</span>
-        <button id="refresh-files-btn" class="btn btn-icon btn-xs" title="Refresh">&#8635;</button>
+      <div class="panel-header"><span>Project</span></div>
+
+      <div id="context-status" class="context-status"></div>
+
+      <div class="context-section expanded" data-section="files">
+        <div class="context-section-header">
+          <span><span class="toggle-arrow">&#9656;</span> Files</span>
+          <span class="section-right">
+            <button id="refresh-files-btn" class="btn btn-icon btn-xs" title="Refresh">&#8635;</button>
+          </span>
+        </div>
+        <div id="file-tree" class="context-section-body"></div>
       </div>
-      <div id="file-tree" class="panel-body"></div>
+
+      <div class="context-section" data-section="session">
+        <div class="context-section-header">
+          <span><span class="toggle-arrow">&#9656;</span> Session</span>
+          <span class="section-right">
+            <span id="artifacts-count" class="artifact-count-badge" style="display:none;">0</span>
+          </span>
+        </div>
+        <div id="artifacts-list" class="context-section-body"></div>
+      </div>
     </aside>
 
     <main id="chat-panel" class="panel">
@@ -52,6 +70,8 @@
         <button id="room-send-btn" class="btn btn-room" title="Send to room (Ctrl+Enter)">Room</button>
       </div>
     </main>
+
+    <div id="panel-splitter" class="panel-splitter"></div>
 
     <aside id="screen-share-panel" class="panel">
       <div class="panel-header">

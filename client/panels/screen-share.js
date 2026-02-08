@@ -1,5 +1,6 @@
 import { getState, setState, appendState } from '../lib/state.js';
 import { injectCognateMessage } from './chat.js';
+import { addArtifact } from './project-context.js';
 
 let room = null;
 let localIdentity = null;
@@ -10,6 +11,44 @@ export function getIdentity() { return localIdentity; }
 export function initScreenShare() {
   document.getElementById('join-room-btn')?.addEventListener('click', joinRoom);
   document.getElementById('share-screen-btn')?.addEventListener('click', toggleScreenShare);
+  initSplitter();
+}
+
+function initSplitter() {
+  const splitter = document.getElementById('panel-splitter');
+  const app = document.getElementById('app');
+  if (!splitter || !app) return;
+
+  // Restore persisted width
+  const saved = localStorage.getItem('screenshare-width');
+  if (saved) app.style.setProperty('--screenshare-width', saved + 'px');
+
+  splitter.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    splitter.setPointerCapture(e.pointerId);
+    app.classList.add('resizing');
+
+    const onMove = (e) => {
+      const vw = document.documentElement.clientWidth;
+      let width = vw - e.clientX;
+      // Clamp between 200px and 60% of viewport
+      width = Math.max(200, Math.min(width, vw * 0.6));
+      app.style.setProperty('--screenshare-width', width + 'px');
+    };
+
+    const onUp = (e) => {
+      splitter.releasePointerCapture(e.pointerId);
+      app.classList.remove('resizing');
+      splitter.removeEventListener('pointermove', onMove);
+      splitter.removeEventListener('pointerup', onUp);
+      // Persist
+      const current = getComputedStyle(app).getPropertyValue('--screenshare-width').trim();
+      localStorage.setItem('screenshare-width', parseInt(current, 10));
+    };
+
+    splitter.addEventListener('pointermove', onMove);
+    splitter.addEventListener('pointerup', onUp);
+  });
 }
 
 async function joinRoom() {
@@ -59,6 +98,18 @@ async function joinRoom() {
       track.detach().forEach(el => el.remove());
     });
 
+    room.on(RoomEvent.ParticipantConnected, (participant) => {
+      const participants = getState('roomParticipants') || [];
+      if (!participants.find(p => p.identity === participant.identity)) {
+        appendState('roomParticipants', { identity: participant.identity, joinedAt: Date.now() });
+      }
+    });
+
+    room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+      const participants = (getState('roomParticipants') || []).filter(p => p.identity !== participant.identity);
+      setState('roomParticipants', participants);
+    });
+
     room.on(RoomEvent.DataReceived, (payload, participant) => {
       try {
         const text = new TextDecoder().decode(payload);
@@ -68,7 +119,9 @@ async function joinRoom() {
           if (participant?.identity !== localIdentity) {
             if (msg.text && msg.text.startsWith('cognate:')) {
               const cognateText = msg.text.slice('cognate:'.length);
-              injectCognateMessage(cognateText, msg.sender || participant?.identity || 'unknown');
+              const sender = msg.sender || participant?.identity || 'unknown';
+              injectCognateMessage(cognateText, sender);
+              addArtifact('cognate', cognateText, sender);
             } else {
               appendState('roomMessages', msg);
             }
@@ -81,6 +134,7 @@ async function joinRoom() {
 
     room.on(RoomEvent.Disconnected, () => {
       setState('livekitRoom', null);
+      setState('roomParticipants', []);
       document.getElementById('screen-share-placeholder').style.display = '';
       document.getElementById('remote-video-container').innerHTML = '';
       document.getElementById('webcam-pip').innerHTML = '';
